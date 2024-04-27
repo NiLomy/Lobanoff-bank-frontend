@@ -1,0 +1,114 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.top {
+  display: flex;
+  gap: 10px;
+  strong {
+    font-size: 13px;
+  }
+  span {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    font-size: 14px;
+  }
+}
+
+.block {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #ecf0f5;
+}
+
+.row {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  width: 100%;
+}
+.icon {
+  height: 16px;
+}
+.percent {
+  color: #828282;
+  gap: 5px;
+  font-size: 14px;
+  padding: 0 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  //background-color: #ecf0f5;
+  align-self: stretch;
+  width: 50px;
+}
+.money {
+  color: black;
+  font-size: 14px;
+  padding: 0 5px;
+  gap: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  //background-color: #ecf0f5;
+  align-self: stretch;
+  flex: 1;
+}
+.table {
+  display: flex;
+  gap: 5px;
+}
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.line {
+  border-radius: 5px;
+  background-color: #ecf0f5;
+  border: 1px solid #ecf0f5;
+  flex: 1;
+  overflow: hidden;
+}
+
+.real {
+  height: 100%;
+  border-radius: 5px;
+  position: relative;
+  &:after {
+    content: "";
+    width: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 5px;
+    background-color: #3f82f2;
+    animation: full 0.5s 1s forwards;
+  }
+}
+
+@keyframes full {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}

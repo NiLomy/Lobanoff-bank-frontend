@@ -26,6 +26,9 @@ export function Input<T extends FieldValues>({
   validate,
   autocomplete,
   error,
+  max,
+  min,
+  onChange,
 }: {
   placeholder: string;
   id: Path<T>;
@@ -33,12 +36,15 @@ export function Input<T extends FieldValues>({
   required?: boolean;
   maxLength?: number;
   minLength?: number;
+  max?: number;
+  min?: number;
   pattern?: RegExp;
   watch: UseFormWatch<T>;
   type: HTMLInputTypeAttribute;
   validate?: Validate<PathValue<T, Path<T>>, T>;
   autocomplete?: HTMLInputAutoCompleteAttribute;
   error: boolean;
+  onChange?: (e: any) => void;
 }) {
   const [focus, setFocus] = React.useState(false);
   return (
@@ -51,6 +57,7 @@ export function Input<T extends FieldValues>({
     >
       <input
         type={type}
+        step="any"
         placeholder={placeholder}
         id={id}
         autoComplete={autocomplete || "off"}
@@ -61,8 +68,11 @@ export function Input<T extends FieldValues>({
           required,
           minLength,
           maxLength,
+          max,
+          min,
           onBlur: () => setFocus(false),
           validate,
+          onChange,
         })}
       />
     </label>
