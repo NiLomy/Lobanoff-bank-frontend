@@ -1,0 +1,27 @@
+.label {
+  border: 1px solid #f5f6f7;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+  background-color: #f5f6f7;
+  transition: all 0.3s ease-in-out;
+  cursor: text;
+  position: relative;
+}
+
+.input {
+  background-color: inherit;
+  padding: 10px 20px;
+  width: 100%;
+}
+.error {
+  background-color: #fbe3df;
+  border: 1px solid #fbe3df;
+  &.focused {
+    border: 1px solid #f52222 !important;
+  }
+}
+.focused {
+  border: 1px solid black;
+  background-color: white;
+}
