@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import styles from "@/app/(auth)/page.module.scss";
 import { Input } from "@/components/Input/Input";
@@ -18,6 +18,7 @@ export default function Login() {
   const onSubmit: SubmitHandler<FormInterface> = (data) => {
     console.log("Форма отправится с таким данными", data);
   };
+  console.log(errors);
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       <h2 className={styles.title}>Login 🥺</h2>

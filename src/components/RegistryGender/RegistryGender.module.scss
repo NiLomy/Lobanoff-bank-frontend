@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+}
+.input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.label {
+  padding: 12px 5px;
+  font-size: 14px;
+  background-color: #f5f6f7;
+  cursor: pointer;
+}
+.left {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.right {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.active {
+  background-color: #ffdd2d;
+}

@@ -28,6 +28,7 @@ export default function MyBank() {
       ],
     },
   ];
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.block}>

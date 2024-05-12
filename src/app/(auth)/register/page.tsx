@@ -4,25 +4,44 @@ import styles from "../page.module.scss";
 import { Input } from "@/components/Input/Input";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Link from "next/link";
+import {
+  onChangeDate,
+  onChangeDepartmentCode,
+  onChangePassport,
+} from "@/utils";
+import { RegistryGender } from "@/components/RegistryGender/RegistryGender";
 
-interface FormInterface {
+export interface RegistryInterface {
   name: string;
   surname: string;
   patronymic: string;
   email: string;
   password: string;
   confirm_password: string;
+  passport: string;
+  birthday: string;
+  gender: "M" | "F";
+  department_code: string;
+  issued_by: string;
+  issued_date: string;
+  address: string;
 }
 export default function Register() {
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
-  } = useForm<FormInterface>();
-  const onSubmit: SubmitHandler<FormInterface> = (data) => {
+  } = useForm<RegistryInterface>({
+    defaultValues: {
+      gender: "M",
+    },
+  });
+  const onSubmit: SubmitHandler<RegistryInterface> = (data) => {
     console.log("Форма отправится с таким данными", data);
   };
+  console.log(errors);
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       <h2 className={styles.title}>Register 😎</h2>
@@ -86,6 +105,117 @@ export default function Register() {
                 : "Max length is 100"}
             </div>
           )}
+        </div>
+      </div>
+      <div className={styles.row}>
+        <div className={styles.input}>
+          <Input
+            placeholder="Passport series"
+            id="passport"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.passport}
+            minLength={11}
+            onChange={(e) => onChangePassport(e, setValue)}
+          />
+          {errors.passport && (
+            <div className={styles.error}>
+              {errors.passport.type === "required"
+                ? "Required"
+                : "Invalid input"}
+            </div>
+          )}
+        </div>
+        <div className={styles.input}>
+          <Input
+            placeholder="Birthday (DD.MM.YYYY)"
+            id="birthday"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.birthday}
+            minLength={10}
+            onChange={(e) => onChangeDate(e, setValue, "birthday")}
+          />
+          {errors.birthday && (
+            <div className={styles.error}>
+              {errors.birthday.type === "required"
+                ? "Required"
+                : "Invalid input"}
+            </div>
+          )}
+        </div>
+        <RegistryGender registry={register} watch={watch} />
+      </div>
+      <div className={styles.row}>
+        <div className={styles.input}>
+          <Input
+            placeholder="Issued by"
+            id="issued_by"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.issued_by}
+          />
+          {errors.issued_by && <div className={styles.error}>Required</div>}
+        </div>
+        <div className={styles.input}>
+          <Input
+            placeholder="Issued data (DD.MM.YYYY)"
+            id="issued_date"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.issued_date}
+            minLength={10}
+            onChange={(e) => onChangeDate(e, setValue, "issued_date")}
+          />
+          {errors.issued_date && (
+            <div className={styles.error}>
+              {errors.issued_date.type === "required"
+                ? "Required"
+                : "Invalid input"}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className={styles.row}>
+        <div className={styles.input}>
+          <Input
+            placeholder="Department code"
+            id="department_code"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.department_code}
+            minLength={7}
+            onChange={(e) => onChangeDepartmentCode(e, setValue)}
+          />
+          {errors.department_code && (
+            <div className={styles.error}>
+              {errors.department_code.type === "required"
+                ? "Required"
+                : "Invalid input"}
+            </div>
+          )}
+        </div>
+        <div className={styles.input}>
+          <Input
+            placeholder="Address"
+            id="address"
+            register={register}
+            watch={watch}
+            required={true}
+            type="text"
+            error={!!errors.address}
+          />
+          {errors.address && <div className={styles.error}>Required</div>}
         </div>
       </div>
       <div className={styles.row}>
