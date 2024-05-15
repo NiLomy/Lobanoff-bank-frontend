@@ -39,11 +39,15 @@ export function onChangePhone(
   };
 
   const v = e.target.value as string;
+  // @ts-ignore
   if (e.nativeEvent.inputType === "deleteContentBackward") {
     setValue("to_phone", v);
-  } else if (e.nativeEvent.inputType === "insertFromPaste") {
-    setValue("to_phone", inline(v));
   } else {
-    setValue("to_phone", inline(v));
+    // @ts-ignore
+    if (e.nativeEvent.inputType === "insertFromPaste") {
+      setValue("to_phone", inline(v));
+    } else {
+      setValue("to_phone", inline(v));
+    }
   }
 }

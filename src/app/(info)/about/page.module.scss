@@ -1,0 +1,36 @@
+.wrapper {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.block {
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 1104px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  padding-top: 20px;
+}
+
+.title {
+  color: #000000cc;
+  font-size: 44px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.content {
+  margin-top: 24px;
+  text-align: center;
+  color: #000000cc;
+  font-size: 16px;
+  word-wrap: break-word;
+  box-sizing: border-box;
+  line-height: 20px;
+}
+
+

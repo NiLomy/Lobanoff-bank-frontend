@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import styles from "../page.module.scss";
 import { Input } from "@/components/Input/Input";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -8,8 +8,13 @@ import {
   onChangeDate,
   onChangeDepartmentCode,
   onChangePassport,
+  onChangePhoneRegister,
 } from "@/utils";
 import { RegistryGender } from "@/components/RegistryGender/RegistryGender";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/stores";
+import { registerUser } from "@/api";
+import { Loading } from "@/components/Loading/Loading";
 
 export interface RegistryInterface {
   name: string;
@@ -25,6 +30,7 @@ export interface RegistryInterface {
   issued_by: string;
   issued_date: string;
   address: string;
+  phone: string;
 }
 export default function Register() {
   const {
@@ -38,8 +44,23 @@ export default function Register() {
       gender: "M",
     },
   });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { setTokens } = useUser();
+
+  const save = async (data: RegistryInterface) => {
+    setLoading(true);
+    const ans = await registerUser(data);
+    if (ans) {
+      setTokens(ans);
+      router.push("/code");
+    } else {
+      setLoading(false);
+    }
+  };
+
   const onSubmit: SubmitHandler<RegistryInterface> = (data) => {
-    console.log("Форма отправится с таким данными", data);
+    save(data);
   };
   console.log(errors);
   return (
@@ -241,6 +262,23 @@ export default function Register() {
             </div>
           )}
         </div>
+        <div className={styles.input}>
+          <Input
+            placeholder="8 999 999 99 99"
+            id="phone"
+            register={register}
+            watch={watch}
+            type="text"
+            error={!!errors.phone}
+            pattern={/^(\+7|8)\s9\d\d\s\d\d\d\s\d\d\s\d\d$/}
+            onChange={(e) => onChangePhoneRegister(e, setValue)}
+          />
+          {errors.phone && (
+            <div className={styles.error}>
+              {errors.phone.type === "required" ? "Required" : "Invalid input"}
+            </div>
+          )}
+        </div>
       </div>
       <div className={styles.row}>
         <div className={styles.input}>
@@ -296,12 +334,16 @@ export default function Register() {
         <span>$</span>, <span>!</span>,<span>%</span>, <span>*</span>,{" "}
         <span>?</span>, <span>&</span>.
       </div>
-      <div className={styles.btns}>
-        <Link href="/login" className={styles.btn}>
-          Login
-        </Link>
-        <input type="submit" className={styles.submit} value="Send" />
-      </div>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className={styles.btns}>
+          <Link href="/login" className={styles.btn}>
+            Login
+          </Link>
+          <input type="submit" className={styles.submit} value="Send" />
+        </div>
+      )}
     </form>
   );
 }

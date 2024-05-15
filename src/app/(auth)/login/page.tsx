@@ -4,6 +4,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import styles from "@/app/(auth)/page.module.scss";
 import { Input } from "@/components/Input/Input";
 import Link from "next/link";
+import { loginUser } from "@/api";
+import { useUser } from "@/stores";
+import { useRouter } from "next/navigation";
 interface FormInterface {
   email: string;
   password: string;
@@ -14,11 +17,28 @@ export default function Login() {
     handleSubmit,
     watch,
     formState: { errors },
+    setValue,
+    setError,
   } = useForm<FormInterface>();
+  const { setTokens } = useUser();
+  const router = useRouter();
   const onSubmit: SubmitHandler<FormInterface> = (data) => {
-    console.log("Форма отправится с таким данными", data);
+    loginUser(data).then((res) => {
+      if (res) {
+        setTokens(res);
+        router.push("/my");
+      } else {
+        setValue("password", "");
+        setError("password", {
+          type: "required",
+        });
+        setValue("email", "");
+        setError("email", {
+          type: "required",
+        });
+      }
+    });
   };
-  console.log(errors);
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       <h2 className={styles.title}>Login 🥺</h2>
