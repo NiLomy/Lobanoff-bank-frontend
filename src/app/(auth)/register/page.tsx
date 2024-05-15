@@ -60,9 +60,9 @@ export default function Register() {
   };
 
   const onSubmit: SubmitHandler<RegistryInterface> = (data) => {
+    console.log(data);
     save(data);
   };
-  console.log(errors);
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       <h2 className={styles.title}>Register 😎</h2>

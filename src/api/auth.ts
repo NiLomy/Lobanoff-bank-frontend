@@ -54,7 +54,7 @@ export async function registerUser(
   console.log(request);
 
   try {
-    const data = await auth.post("register", form);
+    const data = await auth.post("register", request);
     return data.data;
   } catch (e) {
     console.log(e);
