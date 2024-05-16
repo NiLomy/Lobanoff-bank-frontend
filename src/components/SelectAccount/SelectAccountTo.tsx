@@ -9,7 +9,7 @@ import styles from "@/components/SelectAccount/SelectAccount.module.scss";
 import { Currency } from "@/components/Currency/Currency";
 import { ChevronDown } from "lucide-react";
 import classNames from "classnames/bind";
-import { PaymentAccountType } from "@/types";
+import { AccountItemType } from "@/types";
 const cx = classNames.bind(styles);
 export function SelectAccountTo({
   accounts,
@@ -17,20 +17,20 @@ export function SelectAccountTo({
   watch,
   setValue,
 }: {
-  accounts: PaymentAccountType[];
+  accounts: AccountItemType[];
   register: UseFormRegister<PaymentFormInterface>;
   watch: UseFormWatch<PaymentFormInterface>;
   setValue: UseFormSetValue<PaymentFormInterface>;
 }) {
   const [open, setOpen] = useState(false);
-  const set = (acc: PaymentAccountType) => {
+  const set = (acc: AccountItemType) => {
     setValue("to_account.id", acc.id);
-    setValue("to_account.balance", acc.balance);
-    setValue("to_account.currency", acc.currency);
+    setValue("to_account.balance", acc.deposit);
+    setValue("to_account.currency", String(acc.currency.id));
     setValue("to_account.name", acc.name);
   };
 
-  const handleClick = (e: PaymentAccountType) => {
+  const handleClick = (e: AccountItemType) => {
     const from_id = watch("from_account.id");
     const from_currency = watch("from_account.currency");
     const from_name = watch("from_account.name");
@@ -65,7 +65,14 @@ export function SelectAccountTo({
         >
           <div className={styles.item__balance}>
             {watch("to_account.balance")}
-            <Currency cur={watch("to_account.currency")} />
+            <Currency
+              cur={
+                accounts.find((e) => e.id === watch("to_account.id"))!.currency
+                  .icon ||
+                accounts.find((e) => e.id === watch("to_account.id"))!.currency
+                  .name
+              }
+            />
           </div>
           <div className={styles.item__title}>{watch("to_account.name")}</div>
           <div className={styles.item__arrow}>
@@ -104,8 +111,8 @@ export function SelectAccountTo({
               onClick={() => handleClick(e)}
             >
               <div className={styles.item__balance}>
-                {e.balance}
-                <Currency cur={e.currency} />
+                {e.deposit}
+                <Currency cur={e.currency.icon || e.currency.name} />
               </div>
               <div className={styles.item__title}>{e.name}</div>
             </div>

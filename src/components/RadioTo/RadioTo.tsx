@@ -7,6 +7,7 @@ import {
 } from "react-hook-form";
 import { PaymentFormInterface } from "@/app/(bank)/payments/page";
 import classNames from "classnames/bind";
+import { AccountItemType } from "@/types";
 const cx = classNames.bind(styles);
 export function RadioTo({
   accounts,
@@ -16,12 +17,7 @@ export function RadioTo({
 }: {
   register: UseFormRegister<PaymentFormInterface>;
   watch: UseFormWatch<PaymentFormInterface>;
-  accounts: {
-    id: string;
-    name: string;
-    balance: number;
-    currency: string;
-  }[];
+  accounts: AccountItemType[];
   setValue: UseFormSetValue<PaymentFormInterface>;
 }) {
   return (

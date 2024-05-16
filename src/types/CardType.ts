@@ -1,7 +1,7 @@
-import { SystemCardType } from "./SystemCardType";
-
 export type CardType = {
-  id: string;
+  id: number;
   number: string;
-  system: SystemCardType;
+  expiration: string;
+  cvv: string;
+  accountId: number;
 };

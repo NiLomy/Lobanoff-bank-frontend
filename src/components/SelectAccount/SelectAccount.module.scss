@@ -90,6 +90,8 @@
   width: 100%;
   opacity: 0;
   border: 1px solid transparent;
+  max-height: 300px;
+  overflow-y: auto;
   &__open {
     top: 110%;
     opacity: 1;

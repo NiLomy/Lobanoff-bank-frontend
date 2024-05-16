@@ -5,3 +5,5 @@ export * from "./onChangePassport";
 export * from "./onChangeDate";
 export * from "./onChangeDepartmentCode";
 export * from "./onChangePhoneRegister";
+export * from "./onChangePhoneChange";
+export * from "./onChangePassport2";

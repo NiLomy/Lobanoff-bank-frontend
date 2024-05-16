@@ -9,7 +9,7 @@ import { PaymentFormInterface } from "@/app/(bank)/payments/page";
 import { Currency } from "@/components/Currency/Currency";
 import { ChevronDown } from "lucide-react";
 import classNames from "classnames/bind";
-import { PaymentAccountType } from "@/types";
+import { AccountItemType } from "@/types";
 const cx = classNames.bind(styles);
 export function SelectAccountFrom({
   accounts,
@@ -17,20 +17,20 @@ export function SelectAccountFrom({
   watch,
   setValue,
 }: {
-  accounts: PaymentAccountType[];
+  accounts: AccountItemType[];
   register: UseFormRegister<PaymentFormInterface>;
   watch: UseFormWatch<PaymentFormInterface>;
   setValue: UseFormSetValue<PaymentFormInterface>;
 }) {
   const [open, setOpen] = useState(false);
-  const set = (acc: PaymentAccountType) => {
+  const set = (acc: AccountItemType) => {
     setValue("from_account.id", acc.id);
-    setValue("from_account.balance", acc.balance);
-    setValue("from_account.currency", acc.currency);
+    setValue("from_account.balance", acc.deposit);
+    setValue("from_account.currency", String(acc.currency.id));
     setValue("from_account.name", acc.name);
   };
 
-  const handleClick = (e: PaymentAccountType) => {
+  const handleClick = (e: AccountItemType) => {
     const from_id = watch("from_account.id");
     const from_currency = watch("from_account.currency");
     const from_name = watch("from_account.name");
@@ -73,9 +73,16 @@ export function SelectAccountFrom({
         onClick={() => setOpen(!open)}
       >
         <div className={styles.item__balance}>
-          {watch("from_account.balance", accounts[0].balance)}
+          {watch("from_account.balance", accounts[0].deposit)}
           <Currency
-            cur={watch("from_account.currency", accounts[0].currency)}
+            cur={
+              accounts.find(
+                (e) => e.id === watch("from_account.id", accounts[0].id),
+              )!.currency.icon ||
+              accounts.find(
+                (e) => e.id === watch("from_account.id", accounts[0].id),
+              )!.currency.name
+            }
           />
         </div>
         <div className={styles.item__title}>
@@ -101,8 +108,8 @@ export function SelectAccountFrom({
               onClick={() => handleClick(e)}
             >
               <div className={styles.item__balance}>
-                {e.balance}
-                <Currency cur={e.currency} />
+                {e.deposit}
+                <Currency cur={e.currency.icon || e.currency.name} />
               </div>
               <div className={styles.item__title}>{e.name}</div>
             </div>

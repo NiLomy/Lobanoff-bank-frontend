@@ -1,5 +1,10 @@
-.wrapper {
+.c {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+}
+.wrapper {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,5 +37,3 @@
   box-sizing: border-box;
   line-height: 20px;
 }
-
-

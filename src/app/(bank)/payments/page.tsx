@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import styles from "./page.module.scss";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "@/components/Input/Input";
@@ -7,7 +7,18 @@ import { SelectAccountFrom } from "@/components/SelectAccount/SelectAccountFrom"
 import { RadioTo } from "@/components/RadioTo/RadioTo";
 import { SelectAccountTo } from "@/components/SelectAccount/SelectAccountTo";
 import { onChangeCard, onChangePhone } from "@/utils";
-import { PaymentAccountType } from "@/types";
+import { AccountItemType, PaymentAccountType } from "@/types";
+import { Loading } from "@/components/Loading/Loading";
+import { CardInfoResponse } from "@/types/CardInfoResponse";
+import { useUser } from "@/stores";
+import { getAccountInfo, getAllUserAccounts } from "@/api";
+import { getAllCardInfos } from "@/api/cardInfos";
+import { useRouter } from "next/navigation";
+import {
+  transferBetweenAccounts,
+  transferByCard,
+  transferByPhone,
+} from "@/api/transactions";
 export interface PaymentFormInterface {
   from_account: PaymentAccountType;
   to_type: "phone" | "card" | "account";
@@ -17,20 +28,26 @@ export interface PaymentFormInterface {
   message: string;
   amount: number;
 }
-const accountList: PaymentAccountType[] = [
-  {
-    id: "account1",
-    name: "я только начал",
-    balance: 5000000,
-    currency: "$",
-  },
-  {
-    id: "account2",
-    name: "я уже закончил",
-    balance: 120,
-    currency: "₽",
-  },
-];
+
+export function CardInfo({
+  num,
+  info,
+}: {
+  num: string;
+  info: CardInfoResponse;
+}) {
+  const n = num.split(" ").join("").slice(0, 6);
+  if (n.length >= 6 && info[n]) {
+    return (
+      <div className={styles.bank}>
+        <div className={styles.brand}>{info[n].brand}</div>
+        <div className={styles.issuer}>{info[n].issuer}</div>
+      </div>
+    );
+  }
+  return "";
+}
+
 export default function Payments() {
   const {
     register,
@@ -43,18 +60,100 @@ export default function Payments() {
       to_type: "phone",
     },
   });
-
+  const [loading, setLoading] = useState(true);
+  const [sendLoading, setSendLoading] = useState(false);
+  const [accounts, setAccounts] = useState<AccountItemType[]>([]);
+  const [cardInfo, setCardInfo] = useState<CardInfoResponse | null>(null);
+  const { access, id } = useUser();
+  const router = useRouter();
+  useEffect(() => {
+    const get = async () => {
+      if (!access || !id) return;
+      const a = await getAllUserAccounts(access, id);
+      const c = await getAllCardInfos(access);
+      if (a) {
+        setAccounts(a);
+      }
+      if (c) {
+        setCardInfo(c);
+      }
+      if (a && a.length > 0 && c) {
+        setLoading(false);
+      } else {
+        router.push("/my");
+      }
+    };
+    get();
+  }, [access]);
   const onSubmit: SubmitHandler<PaymentFormInterface> = (data) => {
+    setSendLoading(true);
+    const send = async () => {
+      if (!access) return;
+      if (data.to_type === "card") {
+        const response = await transferByCard(
+          {
+            from: Number(data.from_account.id),
+            card: data.to_card.split(" ").join(""),
+            amount: data.amount,
+            message: data.message || null,
+          },
+          access,
+        );
+        if (response) {
+          router.push("/my");
+        } else {
+          setSendLoading(false);
+        }
+      } else if (data.to_type === "phone") {
+        const response = await transferByPhone(
+          {
+            from: Number(data.from_account.id),
+            amount: data.amount,
+            message: data.message || null,
+            phone: data.to_phone.split(" ").join(""),
+          },
+          access,
+        );
+        if (response) {
+          router.push("/my");
+        } else {
+          setSendLoading(false);
+        }
+      } else {
+        const response = await transferBetweenAccounts(
+          {
+            from: Number(data.from_account.id),
+            amount: data.amount,
+            message: data.message || null,
+            to: Number(data.to_account.id),
+          },
+          access,
+        );
+        if (response) {
+          router.push("/my");
+        } else {
+          setSendLoading(false);
+        }
+      }
+    };
+    send();
     console.log("Форма отправится с таким данными", data);
   };
 
+  if (loading) {
+    return (
+      <div className={styles.center}>
+        <Loading />
+      </div>
+    );
+  }
   return (
     <div className={styles.wrapper}>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.item}>
           <div className={styles.title}>From</div>
           <SelectAccountFrom
-            accounts={accountList}
+            accounts={accounts}
             register={register}
             watch={watch}
             setValue={setValue}
@@ -65,7 +164,7 @@ export default function Payments() {
           <RadioTo
             register={register}
             watch={watch}
-            accounts={accountList}
+            accounts={accounts}
             setValue={setValue}
           />
           {watch("to_type", "phone") === "phone" && (
@@ -92,19 +191,17 @@ export default function Payments() {
               onChange={(e) => onChangeCard(e, setValue)}
             />
           )}
+          {cardInfo && (
+            <CardInfo num={watch("to_card", "000000")} info={cardInfo} />
+          )}
+
           {watch("to_type", "phone") === "account" && (
             <SelectAccountTo
-              accounts={accountList}
+              accounts={accounts}
               register={register}
               watch={watch}
               setValue={setValue}
             />
-          )}
-          {watch("to_card") && watch("to_card").length >= 7 && (
-            <div className={styles.bank}>
-              <div className={styles.brand}>MAESTRO</div>
-              <div className={styles.issuer}>LOBANOFF BANK</div>
-            </div>
           )}
         </div>
         <div className={styles.item}>
@@ -118,18 +215,25 @@ export default function Payments() {
               type="number"
               required={true}
               error={!!errors.amount}
-              min={watch("from_account.currency", "$") === "$" ? 1 : 10}
+              min={1}
               max={watch("from_account.balance") || 5000000}
             />
             {watch("from_account.currency") && (
               <div className={styles.tip}>
-                From {watch("from_account.currency") === "$" ? "1$" : "10₽"}
+                From 1{" "}
+                {
+                  accounts.find((e) => e.id === watch("from_account.id"))!
+                    .currency.name
+                }
               </div>
             )}
-            {watch("amount") > 50000 && (
+            {watch("amount") >= 100000 && (
               <div className={styles.tip}>
-                Commission: 1%, it will be sent {watch("amount") * 0.99}
-                {watch("from_account.currency")}
+                Commission: 5%, it will be sent {watch("amount") * 0.95}{" "}
+                {
+                  accounts.find((e) => e.id === watch("from_account.id"))!
+                    .currency.name
+                }
               </div>
             )}
             {!!watch("to_account.id") &&
@@ -144,8 +248,11 @@ export default function Payments() {
             )}
             {errors.amount && errors.amount.type === "min" && (
               <div className={styles.error}>
-                Minimum is{" "}
-                {watch("from_account.currency") === "$" ? "1$" : "10₽"}
+                Minimum is 1{" "}
+                {
+                  accounts.find((e) => e.id === watch("from_account.id"))!
+                    .currency.name
+                }
               </div>
             )}
             {errors.amount && errors.amount.type === "max" && (
@@ -156,24 +263,32 @@ export default function Payments() {
             )}
           </div>
         </div>
-        <div className={styles.item}>
-          <div className={styles.title}>Message</div>
-          <div className={styles.input}>
-            <Input
-              placeholder="Message (optionally)"
-              id="message"
-              register={register}
-              watch={watch}
-              type="text"
-              error={!!errors.message}
-              maxLength={150}
-            />
-            {errors.message && errors.message.type === "maxLength" && (
-              <div className={styles.error__message}>Maximum length is 150</div>
-            )}
+        {watch("to_type") !== "account" && (
+          <div className={styles.item}>
+            <div className={styles.title}>Message</div>
+            <div className={styles.input}>
+              <Input
+                placeholder="Message (optionally)"
+                id="message"
+                register={register}
+                watch={watch}
+                type="text"
+                error={!!errors.message}
+                maxLength={150}
+              />
+              {errors.message && errors.message.type === "maxLength" && (
+                <div className={styles.error__message}>
+                  Maximum length is 150
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <input type="submit" className={styles.submit} value="Send" />
+        )}
+        {sendLoading ? (
+          <Loading />
+        ) : (
+          <input type="submit" className={styles.submit} value="Send" />
+        )}
       </form>
     </div>
   );

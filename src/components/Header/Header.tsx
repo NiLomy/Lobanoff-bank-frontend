@@ -1,10 +1,13 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Header.module.scss";
 import { MainLogo } from "@/components/Icon";
 import Link from "next/link";
 import classNames from "classnames/bind";
 import { usePathname } from "next/navigation";
+import { useUser } from "@/stores";
+import { getUser } from "@/api";
+import { Loading } from "@/components/Loading/Loading";
 const cx = classNames.bind(styles);
 
 const list: { link: string; title: string }[] = [
@@ -15,6 +18,16 @@ const list: { link: string; title: string }[] = [
 ];
 export function Header() {
   const path = usePathname();
+  const { id, access } = useUser();
+  const [name, setName] = useState("");
+  useEffect(() => {
+    const get = async () => {
+      if (!id || !access) return;
+      const u = await getUser(access, id);
+      if (u) setName(u.name);
+    };
+    get();
+  }, [access]);
   return (
     <div className={styles.wrapper}>
       <div className={styles.block}>
@@ -32,7 +45,7 @@ export function Header() {
             );
           })}
         </nav>
-        <div className={styles.user}>Никита</div>
+        <div className={styles.user}>{name ? name : <Loading />}</div>
       </div>
     </div>
   );

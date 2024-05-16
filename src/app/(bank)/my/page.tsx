@@ -1,33 +1,42 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./page.module.scss";
-import { AccountType } from "@/types";
+import { AccountItemType } from "@/types";
 import { SystemCardIcon } from "@/components/Icon";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { money } from "@/utils";
 import { Currency } from "@/components/Currency/Currency";
+import { useUser } from "@/stores";
+import { getAllUserAccounts } from "@/api";
+import { Loading } from "@/components/Loading/Loading";
+
 export default function MyBank() {
   const router = useRouter();
-  const accounts: AccountType[] = [
-    {
-      id: "account1",
-      balance: 77,
-      name: "я только начал",
-      currency: "$",
-      cards: [{ id: "card1", number: "7777", system: "mastercard" }],
-    },
-    {
-      id: "account2",
-      balance: 7778,
-      name: "не стоим на месте",
-      currency: "₽",
-      cards: [
-        { id: "card2", number: "7777", system: "visa" },
-        { id: "card3", number: "7777", system: "piece" },
-      ],
-    },
-  ];
+  const { id, access } = useUser();
+  const [loading, setLoading] = useState(true);
+  const [accounts, setAccounts] = useState<AccountItemType[]>([]);
+
+  useEffect(() => {
+    const get = async () => {
+      if (!access || !id) return;
+      const a = await getAllUserAccounts(access, id);
+      if (a) {
+        setAccounts(a);
+        setLoading(false);
+      }
+    };
+    get();
+  }, [access]);
+
+  if (loading) {
+    return (
+      <div className={styles.center}>
+        <Loading />
+      </div>
+    );
+  }
+  console.log(accounts);
 
   return (
     <div className={styles.wrapper}>
@@ -47,8 +56,8 @@ export default function MyBank() {
                 className={styles.account}
               >
                 <div className={styles.balance}>
-                  {money(e.balance)}
-                  <Currency cur={e.currency} />
+                  {money(e.deposit)}
+                  <Currency cur={e.currency.icon || e.currency.name} />
                 </div>
                 <div className={styles.name}>{e.name}</div>
                 <div className={styles.cards}>
@@ -62,16 +71,12 @@ export default function MyBank() {
                         key={card.id}
                         className={styles.card}
                       >
-                        <span>{card.number}</span>
-                        <SystemCardIcon
-                          system={card.system}
-                          className={styles.system}
-                        />
+                        <span>{card.number.slice(0, 4)}</span>
                       </div>
                     );
                   })}
                 </div>
-                <span className={styles.tip}>{e.currency}</span>
+                <span className={styles.tip}>{e.currency.icon}</span>
               </Link>
             );
           })}

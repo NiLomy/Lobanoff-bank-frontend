@@ -90,20 +90,7 @@
   transform: translateX(50%);
   transition: all 1s ease-in-out 0.5s;
 }
-@media (max-width: 500px) {
-  .lobanoff {
-    height: 60px;
-  }
-  .tinkoff {
-    height: 60px;
-  }
-  .icons {
-    height: 60px;
-  }
-  .text {
-    text-align: center;
-  }
-}
+
 .tinkoff {
   position: absolute;
   left: 50%;
@@ -144,5 +131,20 @@
   }
   .ttext {
     opacity: 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .lobanoff {
+    height: 60px;
+  }
+  .tinkoff {
+    height: 60px;
+  }
+  .icons {
+    height: 60px;
+  }
+  .text {
+    text-align: center;
   }
 }
